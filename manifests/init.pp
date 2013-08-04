@@ -4,44 +4,44 @@
 # an array and passes this array as a parameter to the ntp class.
 # It has future support for arrays in the console built in.
 # This was designed for the following ntp module:
-# name    'puppetlabs-ntp'
-# version '1.0.1'
+# name    'saz-ntp'
+# version '2.0.3'
 
 class console_ntp(
   # we want to be able to define the server list in the PE console
-  # we can either set $servers = undef (since undef evals as a string)
-  # and then we can either set the $servers param in the console or not.
-  # if we just require $servers, then the servers param must be set in
+  # we can either set $server_list = undef (since undef evals as a string)
+  # and then we can either set the $server_list param in the console or not.
+  # if we just require $server_list, then the servers param must be set in
   # the console (or in another class declaration of console_ntp).
-  $servers
+  $server_list
 ) {
   # to future-proof this module for when PE Console supports array params
-  if is_array($servers) {
-    $servers_array = $servers
+  if is_array($server_list) {
+    $server_list_array = $server_list
   # to work around lack of array param support by accepting a comma-separated string of servers
-  } elsif is_string($servers) {
-    if strip($servers) == '' {
-      $servers_array = undef
+  } elsif is_string($server_list) {
+    if strip($server_list) == '' {
+      $server_list_array = undef
     } else {
-      $servers_array = split($servers, ',')
+      $server_list_array = split($server_list, ',')
     }
   } else {
     fail("only array or string values are acceptable for servers parameter")
   }
   # if no valid server list, defer to defaults in ntp
-  if $servers_array == undef {
+  if $server_list_array == undef {
     include ::ntp
   # otherwise validate, normalize, and pass our array of servers
   } else {
     # strip any whitespace from array elements to normalize
-    $normal_servers_array = strip($servers_array)
+    $normal_servers_array = strip($server_list_array)
     # deduplicate empty array entries
     $final_servers_array = delete($normal_servers_array, '')
     # make sure we ended up with a valid array
     validate_array($final_servers_array)
     #pass the array of ntp servers to ntp
     class { ::ntp:
-      servers => $final_servers_array,
+      server_list => $final_servers_array,
     }
   }
 }
