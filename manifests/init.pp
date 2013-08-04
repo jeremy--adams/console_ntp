@@ -9,6 +9,10 @@
 
 class console_ntp(
   # we want to be able to define the server list in the PE console
+  # we can either set $servers = undef (since undef evals as a string)
+  # and then we can either set the $servers param in the console or not.
+  # if we just require $servers, then the servers param must be set in
+  # the console (or in another class declaration of console_ntp).
   $servers
 ) {
   # to future-proof this module for when PE Console supports array params
